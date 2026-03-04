@@ -1,3 +1,5 @@
+import { CONFIG } from '../config.js';
+
 /**
  * Recursive backtracker (DFS) maze generator.
  * Returns a 2D grid of cells, each with { n, s, e, w } wall booleans,
@@ -51,6 +53,22 @@ export function generateMaze(cols, rows) {
       stack.push(next);
     } else {
       stack.pop();
+    }
+  }
+
+  // Post-process: randomly remove internal walls to create loops
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      // Check south wall (skip bottom row boundary)
+      if (r < rows - 1 && grid[r][c].walls.s && Math.random() < CONFIG.MAZE_LOOP_CHANCE) {
+        grid[r][c].walls.s = false;
+        grid[r + 1][c].walls.n = false;
+      }
+      // Check east wall (skip rightmost col boundary)
+      if (c < cols - 1 && grid[r][c].walls.e && Math.random() < CONFIG.MAZE_LOOP_CHANCE) {
+        grid[r][c].walls.e = false;
+        grid[r][c + 1].walls.w = false;
+      }
     }
   }
 

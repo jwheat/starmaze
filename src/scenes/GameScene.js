@@ -176,18 +176,33 @@ export class GameScene extends Phaser.Scene {
       this.gems.add(gem);
     }
 
-    // --- Fuel canisters placed in remaining dead-end cells ---
+    // --- Fuel canisters placed throughout the maze (any cell, not just dead-ends) ---
     for (const cell of shieldGemCells) {
       usedCells.add(`${cell.row},${cell.col}`);
     }
-    const fuelCandidates = deadEnds.filter(c => !usedCells.has(`${c.row},${c.col}`));
-    const fuelCells = Phaser.Utils.Array.Shuffle(fuelCandidates).slice(0, CONFIG.FUEL_CANISTER_COUNT);
+    const allCells = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!usedCells.has(`${r},${c}`)) {
+          allCells.push({ row: r, col: c });
+        }
+      }
+    }
+    const fuelCells = Phaser.Utils.Array.Shuffle(allCells).slice(0, CONFIG.FUEL_CANISTER_COUNT);
 
+    this.fuelMarkers = [];
     for (const cell of fuelCells) {
       const pos = cellCenter(cell.row, cell.col);
       const gem = new Collectible(this, pos.x, pos.y, 'fuelCanister');
       gem.gemType = 'fuel';
       this.gems.add(gem);
+
+      // Minimap marker (small orange dot)
+      const marker = this.add.circle(pos.x, pos.y, 8, CONFIG.COLOR_FUEL, 0.9);
+      marker.setDepth(2);
+      this.cameras.main.ignore(marker);  // only visible on minimap
+      gem.minimapMarker = marker;
+      this.fuelMarkers.push(marker);
     }
 
     this.physics.add.overlap(this.ship, this.gems, (ship, gem) => {
@@ -201,6 +216,9 @@ export class GameScene extends Phaser.Scene {
         this.ship.addFuel(CONFIG.FUEL_CANISTER_AMOUNT);
         this.score += CONFIG.FUEL_CANISTER_SCORE;
         this.events.emit('showMessage', '+FUEL', 1000);
+        if (gem.minimapMarker) {
+          gem.minimapMarker.destroy();
+        }
       } else if (gem.gemType === 'life') {
         this.ship.addLife();
         this.score += CONFIG.EXTRA_LIFE_SCORE;

@@ -8,6 +8,7 @@ export const CONFIG = {
   MAZE_ROWS: 12,
   CELL_SIZE: 7,        // each maze cell = 7×7 tiles
   TILE_SIZE: 32,       // pixels per tile
+  MAZE_LOOP_CHANCE: 0.50, // probability each internal wall is removed to create loops
 
   // Ship
   SHIP_ROTATE_SPEED: 200,   // degrees/sec
@@ -42,11 +43,11 @@ export const CONFIG = {
 
   // Fuel
   FUEL_MAX: 100,
-  FUEL_PASSIVE_DRAIN: 1.1,     // per second at idle
+  FUEL_PASSIVE_DRAIN: 0,     // per second at idle
   FUEL_THRUST_DRAIN: 1.1,      // additional per second when thrusting (total 2.2/s)
   FUEL_GRACE_PERIOD: 5000,     // ms before fuel-empty death
   FUEL_CANISTER_AMOUNT: 25,    // fuel restored per canister
-  FUEL_CANISTER_COUNT: 5,      // placed in maze dead-ends
+  FUEL_CANISTER_COUNT: 8,      // placed in maze corridors
   FUEL_CANISTER_SCORE: 25,
   FUEL_LOW_THRESHOLD: 25,      // warning threshold
 

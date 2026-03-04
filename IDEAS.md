@@ -22,6 +22,18 @@ Currently all enemies behave identically. Adding distinct types would make encou
 - **Stalker** — Follows walls, longer detection range, slower fire rate
 - **Heavy** — Slow, takes multiple hits to destroy, higher point value
 
+Possibly use Pac-Man style enemies
+
+- **hunter** - actively pathfinds toward the player if within some detection radius.
+
+- **patroller** - follows a fixed route until it sees the player, then pursues briefly.
+
+- **lurker** - hides near intersections or power-ups.
+
+- **drifter** - just roams unpredictably and occasionally blunders into the player.
+
+- **territorial enemies** - Each enemy “owns” a region of the maze. They behave normally inside their territory but become aggressive when the player invades. That creates natural zones of difficulty across the map.
+
 ### Power-Ups
 Temporary abilities that reward exploration and add tactical options.
 
