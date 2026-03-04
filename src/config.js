@@ -30,7 +30,7 @@ export const CONFIG = {
   ENEMY_CHASE_SPEED: 140,
   ENEMY_DETECT_RANGE: 250,
   ENEMY_FIRE_RATE: 1500,
-  ENEMY_COUNT: 6,
+  ENEMY_COUNT: 9,
   ENEMY_DROP_CHANCE: 0.20,   // 1 in 5 chance of dropping a gem
 
   // Collectibles

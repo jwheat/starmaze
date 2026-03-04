@@ -4,6 +4,12 @@
 
 StarMaze is a top-down arcade shooter set in procedurally generated mazes. Your goal is to pilot a ship through the maze, collect every star, and reach the exit portal — all while fighting off patrolling enemies. Each level increases the maze size and enemy count.
 
+## Official Description
+
+In the year 2891, explorers have discovered an alien artifact of immense power. Hidden within the Star Maze are jewels of immense power. Powerful aliens guard these crystals of pure energy, intent on keeping them safe. The discoverers of the the Star Maze, unwilling to risk their own life and limb, have traveled back almost 1000 years to the year 1981, and have published a simulation of the Star Maze. Now these visitors from the future await the player who achieves the highest score, to use their space fighting prowess to acquire the crystals.
+
+In Star Maze, the player controls a small ship which can rotate 360 degrees, always firing from the forward cannons. The player can accelerate depending on the direction they are facing. The goal is to collect 9 jewels from the maze to complete a level, while avoiding or destroying enemy ships. The player has rapidly depleting fuel stores, and must gather resources as they explore. If the player is struck by alien fire, they are destroyed. The player starts with a total of 3 ships, and if all are lost, it's game over.
+
 ## Controls
 
 | Action | Keys |
@@ -201,3 +207,19 @@ The minimap shows the entire maze, your position, enemies, stars, and the exit p
 - **Clear enemies near stars.** Don't rush into a dead-end to grab a star if an enemy is patrolling nearby.
 - **Manage your approach to the exit.** Once all stars are collected, the exit portal activates — plan your path there before grabbing the last star.
 - **Enemies get denser.** In later levels, conserve lives and shield gems for harder sections of the maze.
+
+## Original Game Credits
+
+**Programmed by** Gordon Eastman
+**Original game design by** Robert J. Woodhead
+**Cover design by**	Rick Austin
+
+## Other Credits / Details (Wikipedia)
+**Developer**	Eastman Computing
+**Publisher**	Sir-Tech
+**Designer**	Robert Woodhead
+**Programmer**	Gordon Eastman
+**Platforms**	Apple II, Atari 8-bit, Commodore 64
+**Release**	1982: Apple / 1983: Atari, C64
+**Genre**	Multidirectional shooter
+**Mode**	Single-player
