@@ -261,6 +261,27 @@ export class GameScene extends Phaser.Scene {
       this.enemies.add(enemy);
     }
 
+    // --- Turret enemies (placed in any available cell, not just dead-ends) ---
+    const usedEnemyCells = new Set(selectedEnemyCells.map(c => `${c.row},${c.col}`));
+    usedEnemyCells.add('0,0');
+    usedEnemyCells.add(`${farthestCell.row},${farthestCell.col}`);
+    const turretCandidates = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!usedEnemyCells.has(`${r},${c}`)) {
+          turretCandidates.push({ row: r, col: c });
+        }
+      }
+    }
+    const turretCount = Math.min(CONFIG.TURRET_COUNT + Math.floor(this.level / 2), turretCandidates.length);
+    const turretCells = Phaser.Utils.Array.Shuffle(turretCandidates).slice(0, turretCount);
+
+    for (const cell of turretCells) {
+      const pos = cellCenter(cell.row, cell.col);
+      const turret = new Enemy(this, pos.x, pos.y, 'turret');
+      this.enemies.add(turret);
+    }
+
     this.physics.add.collider(this.enemies, this.wallLayer);
     this.physics.add.collider(this.enemies, this.enemies);
 

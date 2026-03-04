@@ -36,6 +36,11 @@ export const CONFIG = {
   ENEMY_COUNT: 9,
   ENEMY_DROP_CHANCE: 0.20,   // 1 in 5 chance of dropping a gem
 
+  // Turret enemies
+  TURRET_FIRE_RATE: 800,
+  TURRET_DETECT_RANGE: 350,
+  TURRET_COUNT: 2,
+
   // Collectibles
   STAR_SCORE: 100,
   ENEMY_KILL_SCORE: 250,
@@ -67,6 +72,7 @@ export const CONFIG = {
   COLOR_SHIELD_GEM: 0x4488ff,
   COLOR_LIFE_GEM: 0x00ff88,
   COLOR_FUEL: 0xff8800,
+  COLOR_TURRET: 0xff6600,
   COLOR_FUEL_LOW: 0xff3333,
 };
 

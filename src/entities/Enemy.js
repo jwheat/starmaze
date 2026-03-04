@@ -2,15 +2,22 @@ import Phaser from 'phaser';
 import { CONFIG } from '../config.js';
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y) {
-    super(scene, x, y, 'enemy');
+  constructor(scene, x, y, type = 'normal') {
+    const texture = type === 'turret' ? 'turret' : 'enemy';
+    super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+
+    this.enemyType = type;
 
     this.body.setSize(24, 24);
     this.body.setOffset(12, 12);
     this.body.setBounce(0.8);
     this.body.setCollideWorldBounds(true);
+
+    if (this.enemyType === 'turret') {
+      this.body.setImmovable(true);
+    }
 
     this.alive = true;
     this.lastFired = 0;
@@ -19,21 +26,41 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.chasing = false;
   }
 
+  get detectRange() {
+    return this.enemyType === 'turret' ? CONFIG.TURRET_DETECT_RANGE : CONFIG.ENEMY_DETECT_RANGE;
+  }
+
+  get fireRate() {
+    return this.enemyType === 'turret' ? CONFIG.TURRET_FIRE_RATE : CONFIG.ENEMY_FIRE_RATE;
+  }
+
   update(time, delta, player, wallLayer, enemyBullets) {
     if (!this.alive || !this.active) return;
     if (!player || !player.alive) {
-      this.patrol(delta);
+      if (this.enemyType !== 'turret') this.patrol(delta);
       return;
     }
 
     const dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+    const hasLOS = dist < this.detectRange && this.checkLOS(player, wallLayer);
 
-    // Simple line-of-sight: check if a ray from enemy to player hits a wall
-    const hasLOS = dist < CONFIG.ENEMY_DETECT_RANGE && this.checkLOS(player, wallLayer);
+    if (this.enemyType === 'turret') {
+      this.body.setVelocity(0, 0);
+      if (hasLOS) {
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+        this.setRotation(angle);
 
+        if (time > this.lastFired + this.fireRate && enemyBullets) {
+          this.shoot(angle, enemyBullets);
+          this.lastFired = time;
+        }
+      }
+      return;
+    }
+
+    // Normal enemy behavior
     if (hasLOS) {
       this.chasing = true;
-      // Chase player
       const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
       this.body.setVelocity(
         Math.cos(angle) * CONFIG.ENEMY_CHASE_SPEED,
@@ -41,8 +68,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       );
       this.setRotation(angle);
 
-      // Shoot at player
-      if (time > this.lastFired + CONFIG.ENEMY_FIRE_RATE && enemyBullets) {
+      if (time > this.lastFired + this.fireRate && enemyBullets) {
         this.shoot(angle, enemyBullets);
         this.lastFired = time;
       }
@@ -98,6 +124,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.alive = false;
     this.body.enable = false;
 
+    const tintColor = this.enemyType === 'turret' ? CONFIG.COLOR_TURRET : CONFIG.COLOR_ENEMY;
+
     // Explosion
     if (this.scene.textures.exists('particle')) {
       const emitter = this.scene.add.particles(this.x, this.y, 'particle', {
@@ -106,7 +134,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         lifespan: 500,
         quantity: 12,
         emitting: false,
-        tint: [CONFIG.COLOR_ENEMY, 0xff8800, 0xffff00],
+        tint: [tintColor, 0xff8800, 0xffff00],
       });
       emitter.explode(12);
     }

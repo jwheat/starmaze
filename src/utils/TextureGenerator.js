@@ -109,6 +109,45 @@ export function generateTextures(scene) {
   eGfx.generateTexture('enemy', enemySize * 2, enemySize * 2);
   eGfx.destroy();
 
+  // --- Turret enemy (octagonal base with barrel) ---
+  const turretSize = 24;
+  const tGfx = scene.make.graphics({ add: false });
+  tGfx.fillStyle(CONFIG.COLOR_TURRET, 0.15);
+  tGfx.fillCircle(turretSize, turretSize, turretSize * 0.85);
+  // Octagonal base
+  tGfx.fillStyle(CONFIG.COLOR_TURRET);
+  tGfx.beginPath();
+  const sides = 8;
+  for (let i = 0; i < sides; i++) {
+    const a = (Math.PI * 2 / sides) * i - Math.PI / sides;
+    const ox = turretSize + Math.cos(a) * (turretSize - 6);
+    const oy = turretSize + Math.sin(a) * (turretSize - 6);
+    if (i === 0) tGfx.moveTo(ox, oy);
+    else tGfx.lineTo(ox, oy);
+  }
+  tGfx.closePath();
+  tGfx.fillPath();
+  // Barrel pointing right
+  tGfx.fillStyle(CONFIG.COLOR_TURRET);
+  tGfx.fillRect(turretSize, turretSize - 3, turretSize - 2, 6);
+  // Outline
+  tGfx.lineStyle(1.5, 0xffaa44, 0.7);
+  tGfx.beginPath();
+  for (let i = 0; i < sides; i++) {
+    const a = (Math.PI * 2 / sides) * i - Math.PI / sides;
+    const ox = turretSize + Math.cos(a) * (turretSize - 6);
+    const oy = turretSize + Math.sin(a) * (turretSize - 6);
+    if (i === 0) tGfx.moveTo(ox, oy);
+    else tGfx.lineTo(ox, oy);
+  }
+  tGfx.closePath();
+  tGfx.strokePath();
+  // Center dot
+  tGfx.fillStyle(0xffffff, 0.6);
+  tGfx.fillCircle(turretSize, turretSize, 4);
+  tGfx.generateTexture('turret', turretSize * 2, turretSize * 2);
+  tGfx.destroy();
+
   // --- Exit portal ---
   const exitGfx = scene.make.graphics({ add: false });
   exitGfx.fillStyle(CONFIG.COLOR_EXIT, 0.1);
