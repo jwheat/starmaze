@@ -80,25 +80,22 @@ export class GameScene extends Phaser.Scene {
       this.gameOver();
     });
 
-    // --- Camera ---
+    // --- Camera (constrained to game area, not the panel) ---
+    this.cameras.main.setViewport(0, 0, CONFIG.GAME_WIDTH, CONFIG.HEIGHT);
     this.cameras.main.setBounds(0, 0, worldW, worldH);
     this.cameras.main.startFollow(this.ship, true, 0.08, 0.08);
 
-    // --- Minimap ---
-    const minimapSize = 140;
-    this.minimap = this.cameras.add(
-      CONFIG.WIDTH - minimapSize - 10,
-      CONFIG.HEIGHT - minimapSize - 10,
-      minimapSize, minimapSize
-    );
+    // --- Minimap (inside the right panel) ---
+    const minimapSize = 180;
+    const mmX = CONFIG.GAME_WIDTH + Math.floor((CONFIG.PANEL_WIDTH - minimapSize) / 2);
+    const mmY = CONFIG.HEIGHT - minimapSize - 20;
+    this.minimap = this.cameras.add(mmX, mmY, minimapSize, minimapSize);
     this.minimap.setZoom(minimapSize / Math.max(worldW, worldH));
     this.minimap.setBounds(0, 0, worldW, worldH);
     this.minimap.setBackgroundColor(0x111122);
     this.minimap.centerOn(worldW / 2, worldH / 2);
     this.minimap.setAlpha(0.85);
 
-    const mmX = CONFIG.WIDTH - minimapSize - 10;
-    const mmY = CONFIG.HEIGHT - minimapSize - 10;
     const mmBorder = this.add.rectangle(
       mmX + minimapSize / 2, mmY + minimapSize / 2,
       minimapSize + 2, minimapSize + 2

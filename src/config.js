@@ -1,7 +1,9 @@
 export const CONFIG = {
   // Display
-  WIDTH: 800,
+  WIDTH: 1040,
   HEIGHT: 600,
+  GAME_WIDTH: 800,
+  PANEL_WIDTH: 240,
 
   // Maze
   MAZE_COLS: 12,

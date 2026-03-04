@@ -15,44 +15,86 @@ export class HudScene extends Phaser.Scene {
     this.fuel = CONFIG.FUEL_MAX;
     this.fuelFlashing = false;
 
+    // --- Panel background ---
+    const panelX = CONFIG.GAME_WIDTH;
+    const panelCenterX = panelX + CONFIG.PANEL_WIDTH / 2;
+
+    // Panel background — split to leave a cutout for the minimap (rendered by GameScene)
+    const minimapSize = 180;
+    const mmY = CONFIG.HEIGHT - minimapSize - 20; // must match GameScene minimap position
+    const topH = mmY - 5; // 5px gap above minimap
+    this.add.rectangle(panelX + CONFIG.PANEL_WIDTH / 2, topH / 2,
+      CONFIG.PANEL_WIDTH, topH, 0x111122).setScrollFactor(0);
+    const bottomY = mmY + minimapSize + 5;
+    const bottomH = CONFIG.HEIGHT - bottomY;
+    if (bottomH > 0) {
+      this.add.rectangle(panelX + CONFIG.PANEL_WIDTH / 2, bottomY + bottomH / 2,
+        CONFIG.PANEL_WIDTH, bottomH, 0x111122).setScrollFactor(0);
+    }
+
+    // Left-edge border line
+    this.add.rectangle(panelX, CONFIG.HEIGHT / 2, 2, CONFIG.HEIGHT, 0x3355aa).setScrollFactor(0);
+
+    // --- HUD elements stacked vertically ---
     const style = { fontSize: '16px', color: '#ffffff', fontFamily: 'monospace' };
+    const titleStyle = { fontSize: '18px', color: '#00ffff', fontFamily: 'monospace', fontStyle: 'bold' };
+    let y = 20;
+    const spacing = 30;
+
+    // Title
+    this.add.text(panelCenterX, y, 'STAR MAZE', titleStyle)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    y += spacing + 8;
+
+    // Level
+    this.levelText = this.add.text(panelCenterX, y, 'LEVEL 1', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    y += spacing;
 
     // Score
-    this.scoreText = this.add.text(16, 12, 'SCORE: 0', style).setScrollFactor(0);
+    this.scoreText = this.add.text(panelCenterX, y, 'SCORE: 0', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    y += spacing;
 
     // Stars
-    this.starText = this.add.text(16, 34, 'STARS: 0/0', style).setScrollFactor(0);
+    this.starText = this.add.text(panelCenterX, y, 'STARS: 0/0', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    y += spacing + 8;
 
-    // Fuel bar (below stars)
-    this.fuelText = this.add.text(16, 56, '', style).setScrollFactor(0);
+    // Lives
+    this.livesText = this.add.text(panelCenterX, y, '', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    this.updateLivesDisplay();
+    y += spacing;
+
+    // Shield
+    this.shieldText = this.add.text(panelCenterX, y, '', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
+    this.updateShieldDisplay();
+    y += spacing;
+
+    // Fuel
+    this.fuelText = this.add.text(panelCenterX, y, '', style)
+      .setOrigin(0.5, 0).setScrollFactor(0);
     this.updateFuelDisplay();
 
-    // Grace period countdown (center screen)
-    this.graceText = this.add.text(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2 + 30, '', {
+    // Grace period countdown (centered on game area)
+    this.graceText = this.add.text(CONFIG.GAME_WIDTH / 2, CONFIG.HEIGHT / 2 + 30, '', {
       fontSize: '32px',
       color: '#ff3333',
       fontFamily: 'monospace',
       fontStyle: 'bold',
     }).setOrigin(0.5).setScrollFactor(0).setAlpha(0);
 
-    // Lives (top-right area)
-    this.livesText = this.add.text(CONFIG.WIDTH - 16, 12, '', style)
-      .setOrigin(1, 0)
-      .setScrollFactor(0);
-    this.updateLivesDisplay();
+    // Message display area (centered on game area)
+    this.messageText = this.add.text(CONFIG.GAME_WIDTH / 2, CONFIG.HEIGHT / 2 - 40, '', {
+      fontSize: '24px',
+      color: '#00ffff',
+      fontFamily: 'monospace',
+      align: 'center',
+    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0);
 
-    // Shield HP (below lives)
-    this.shieldText = this.add.text(CONFIG.WIDTH - 16, 34, '', style)
-      .setOrigin(1, 0)
-      .setScrollFactor(0);
-    this.updateShieldDisplay();
-
-    // Level indicator
-    this.levelText = this.add.text(CONFIG.WIDTH / 2, 12, 'LEVEL 1', style)
-      .setOrigin(0.5, 0)
-      .setScrollFactor(0);
-
-    // Listen to game events
+    // --- Listen to game events ---
     const gameScene = this.scene.get('GameScene');
 
     gameScene.events.on('scoreChanged', (score) => {
@@ -121,14 +163,6 @@ export class HudScene extends Phaser.Scene {
       }
     });
 
-    // Message display area (center)
-    this.messageText = this.add.text(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2 - 40, '', {
-      fontSize: '24px',
-      color: '#00ffff',
-      fontFamily: 'monospace',
-      align: 'center',
-    }).setOrigin(0.5).setScrollFactor(0).setAlpha(0);
-
     gameScene.events.on('showMessage', (text, duration = 2000) => {
       this.messageText.setText(text);
       this.tweens.add({
@@ -141,7 +175,6 @@ export class HudScene extends Phaser.Scene {
   }
 
   updateLivesDisplay() {
-    // Show ship icons for lives
     let display = 'LIVES: ';
     for (let i = 0; i < this.lives; i++) {
       display += '\u25B6 '; // triangle
