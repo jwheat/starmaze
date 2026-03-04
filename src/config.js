@@ -40,6 +40,16 @@ export const CONFIG = {
   EXTRA_LIFE_SCORE: 200,
   SHIELD_GEM_COUNT: 3,       // placed in maze
 
+  // Fuel
+  FUEL_MAX: 100,
+  FUEL_PASSIVE_DRAIN: 1.1,     // per second at idle
+  FUEL_THRUST_DRAIN: 1.1,      // additional per second when thrusting (total 2.2/s)
+  FUEL_GRACE_PERIOD: 5000,     // ms before fuel-empty death
+  FUEL_CANISTER_AMOUNT: 25,    // fuel restored per canister
+  FUEL_CANISTER_COUNT: 5,      // placed in maze dead-ends
+  FUEL_CANISTER_SCORE: 25,
+  FUEL_LOW_THRESHOLD: 25,      // warning threshold
+
   // Colors
   COLOR_SHIP: 0x00ff88,
   COLOR_WALL: 0x3355aa,
@@ -53,6 +63,8 @@ export const CONFIG = {
   COLOR_SHIELD: 0x4488ff,
   COLOR_SHIELD_GEM: 0x4488ff,
   COLOR_LIFE_GEM: 0x00ff88,
+  COLOR_FUEL: 0xff8800,
+  COLOR_FUEL_LOW: 0xff3333,
 };
 
 // Derived constants

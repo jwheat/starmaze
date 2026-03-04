@@ -21,6 +21,12 @@ export class Ship extends Phaser.Physics.Arcade.Sprite {
     this.invulnerable = false;
     this.respawning = false;
 
+    // Fuel state
+    this.fuel = CONFIG.FUEL_MAX;
+    this.fuelEmpty = false;
+    this.graceTimer = 0;
+    this.graceActive = false;
+
     // Thrust flame
     this.flame = scene.add.sprite(x, y, 'flame');
     this.flame.setVisible(false);
@@ -127,10 +133,85 @@ export class Ship extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  handleInput(cursors, wasd, time) {
+  updateFuel(delta) {
     if (!this.alive || this.respawning) return;
 
-    // Rotation
+    // Clamp delta to prevent tab-away death spikes
+    const dt = Math.min(delta, 100) / 1000;
+
+    if (this.graceActive) {
+      this.graceTimer -= Math.min(delta, 100);
+      this.scene.events.emit('graceTimerChanged', this.graceTimer);
+      if (this.graceTimer <= 0) {
+        this.fuelDeath();
+      }
+      return;
+    }
+
+    // Passive drain
+    this.fuel -= CONFIG.FUEL_PASSIVE_DRAIN * dt;
+
+    if (this.fuel <= 0) {
+      this.fuel = 0;
+      this.fuelEmpty = true;
+      this.graceActive = true;
+      this.graceTimer = CONFIG.FUEL_GRACE_PERIOD;
+      this.scene.events.emit('fuelEmpty');
+      this.scene.events.emit('showMessage', 'FUEL EMPTY!', 2000);
+    }
+  }
+
+  addFuel(amount) {
+    this.fuel = Math.min(this.fuel + amount, CONFIG.FUEL_MAX);
+    this.fuelEmpty = false;
+    if (this.graceActive) {
+      this.graceActive = false;
+      this.graceTimer = 0;
+      this.scene.events.emit('graceTimerChanged', 0);
+    }
+    this.scene.events.emit('fuelChanged', this.fuel);
+  }
+
+  resetFuel() {
+    this.fuel = CONFIG.FUEL_MAX;
+    this.fuelEmpty = false;
+    this.graceActive = false;
+    this.graceTimer = 0;
+  }
+
+  fuelDeath() {
+    // Fuel death bypasses shields — it's a strategic failure
+    this.graceActive = false;
+    this.graceTimer = 0;
+    this.scene.events.emit('graceTimerChanged', 0);
+
+    this.lives--;
+    this.scene.events.emit('livesChanged', this.lives);
+    this.spawnExplosion();
+    this.playExplosionSound();
+    this.scene.cameras.main.shake(300, 0.015);
+
+    if (this.lives <= 0) {
+      this.die();
+      this.scene.events.emit('fuelDeathGameOver');
+      return;
+    }
+
+    // Respawn with full fuel and shield
+    this.resetFuel();
+    this.shieldHP = CONFIG.SHIELD_MAX_HP;
+    this.scene.events.emit('shieldChanged', this.shieldHP);
+    this.scene.events.emit('fuelChanged', this.fuel);
+    this.startRespawn();
+  }
+
+  handleInput(cursors, wasd, time, delta) {
+    if (!this.alive || this.respawning) return;
+
+    // Update fuel
+    this.updateFuel(delta);
+
+    // Rotation (always works, even without fuel)
     if (cursors.left.isDown || wasd.left.isDown) {
       this.body.setAngularVelocity(-CONFIG.SHIP_ROTATE_SPEED);
     } else if (cursors.right.isDown || wasd.right.isDown) {
@@ -139,18 +220,33 @@ export class Ship extends Phaser.Physics.Arcade.Sprite {
       this.body.setAngularVelocity(0);
     }
 
-    // Thrust
-    if (cursors.up.isDown || wasd.up.isDown) {
+    // Thrust (disabled when fuel empty)
+    if ((cursors.up.isDown || wasd.up.isDown) && !this.fuelEmpty) {
       this.scene.physics.velocityFromRotation(
         Phaser.Math.DegToRad(this.angle),
         CONFIG.SHIP_THRUST,
         this.body.acceleration
       );
       this.flame.setVisible(true);
+
+      // Extra thrust drain
+      const dt = Math.min(delta, 100) / 1000;
+      this.fuel -= CONFIG.FUEL_THRUST_DRAIN * dt;
+      if (this.fuel <= 0) {
+        this.fuel = 0;
+        this.fuelEmpty = true;
+        this.graceActive = true;
+        this.graceTimer = CONFIG.FUEL_GRACE_PERIOD;
+        this.scene.events.emit('fuelEmpty');
+        this.scene.events.emit('showMessage', 'FUEL EMPTY!', 2000);
+      }
     } else {
       this.body.setAcceleration(0);
       this.flame.setVisible(false);
     }
+
+    // Emit fuel state each frame
+    this.scene.events.emit('fuelChanged', this.fuel);
 
     // Position flame behind ship
     const flameAngle = Phaser.Math.DegToRad(this.angle + 180);
@@ -314,6 +410,7 @@ export class Ship extends Phaser.Physics.Arcade.Sprite {
     this.setVisible(true);
     this.respawning = false;
     this.setAlpha(1);
+    this.resetFuel();
 
     this.scene.tweens.add({
       targets: this,

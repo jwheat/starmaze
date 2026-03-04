@@ -75,6 +75,11 @@ export class GameScene extends Phaser.Scene {
       this.respawnShip();
     });
 
+    // Listen for fuel death game over
+    this.events.on('fuelDeathGameOver', () => {
+      this.gameOver();
+    });
+
     // --- Camera ---
     this.cameras.main.setBounds(0, 0, worldW, worldH);
     this.cameras.main.startFollow(this.ship, true, 0.08, 0.08);
@@ -171,6 +176,20 @@ export class GameScene extends Phaser.Scene {
       this.gems.add(gem);
     }
 
+    // --- Fuel canisters placed in remaining dead-end cells ---
+    for (const cell of shieldGemCells) {
+      usedCells.add(`${cell.row},${cell.col}`);
+    }
+    const fuelCandidates = deadEnds.filter(c => !usedCells.has(`${c.row},${c.col}`));
+    const fuelCells = Phaser.Utils.Array.Shuffle(fuelCandidates).slice(0, CONFIG.FUEL_CANISTER_COUNT);
+
+    for (const cell of fuelCells) {
+      const pos = cellCenter(cell.row, cell.col);
+      const gem = new Collectible(this, pos.x, pos.y, 'fuelCanister');
+      gem.gemType = 'fuel';
+      this.gems.add(gem);
+    }
+
     this.physics.add.overlap(this.ship, this.gems, (ship, gem) => {
       if (!gem.active || !gem.body?.enable) return;
       gem.collect();
@@ -178,6 +197,10 @@ export class GameScene extends Phaser.Scene {
         this.ship.restoreShield();
         this.score += CONFIG.SHIELD_GEM_SCORE;
         this.events.emit('showMessage', 'SHIELD RESTORED!', 1500);
+      } else if (gem.gemType === 'fuel') {
+        this.ship.addFuel(CONFIG.FUEL_CANISTER_AMOUNT);
+        this.score += CONFIG.FUEL_CANISTER_SCORE;
+        this.events.emit('showMessage', '+FUEL', 1000);
       } else if (gem.gemType === 'life') {
         this.ship.addLife();
         this.score += CONFIG.EXTRA_LIFE_SCORE;
@@ -286,6 +309,7 @@ export class GameScene extends Phaser.Scene {
       this.events.emit('shieldChanged', this.ship.shieldHP);
       this.events.emit('livesChanged', this.ship.lives);
       this.events.emit('levelChanged', this.level);
+      this.events.emit('fuelChanged', this.ship.fuel);
     });
 
     this.gameEnded = false;
@@ -294,7 +318,7 @@ export class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (this.gameEnded) return;
 
-    this.ship.handleInput(this.cursors, this.wasd, time);
+    this.ship.handleInput(this.cursors, this.wasd, time, delta);
 
     if (this.fireKey.isDown && time > this.lastFired + CONFIG.FIRE_RATE
         && this.ship.alive && !this.ship.respawning) {
@@ -318,15 +342,22 @@ export class GameScene extends Phaser.Scene {
   }
 
   spawnDrop(x, y) {
-    // 70% shield gem, 30% extra life
-    const isLife = Math.random() < 0.3;
-    const texture = isLife ? 'lifeGem' : 'shieldGem';
+    // 50% shield gem, 25% fuel canister, 25% extra life
+    const roll = Math.random();
+    let texture, gemType;
+    if (roll < 0.50) {
+      texture = 'shieldGem';
+      gemType = 'shield';
+    } else if (roll < 0.75) {
+      texture = 'fuelCanister';
+      gemType = 'fuel';
+    } else {
+      texture = 'lifeGem';
+      gemType = 'life';
+    }
     const gem = new Collectible(this, x, y, texture);
-    gem.gemType = isLife ? 'life' : 'shield';
+    gem.gemType = gemType;
     this.gems.add(gem);
-
-    // Re-register overlap since this gem was added after initial setup
-    // (The group overlap was already set, new members auto-included)
   }
 
   respawnShip() {

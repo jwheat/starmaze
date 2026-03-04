@@ -198,6 +198,25 @@ export function generateTextures(scene) {
   lgGfx.generateTexture('lifeGem', 32, 32);
   lgGfx.destroy();
 
+  // --- Fuel canister (orange rectangle) ---
+  const fuelGfx = scene.make.graphics({ add: false });
+  fuelGfx.fillStyle(CONFIG.COLOR_FUEL, 0.15);
+  fuelGfx.fillCircle(16, 16, 14);
+  // Canister body
+  fuelGfx.fillStyle(CONFIG.COLOR_FUEL);
+  fuelGfx.fillRect(8, 6, 16, 20);
+  // Lighter outline
+  fuelGfx.lineStyle(1.5, 0xffaa44, 0.8);
+  fuelGfx.strokeRect(8, 6, 16, 20);
+  // White highlight band at top
+  fuelGfx.fillStyle(0xffffff, 0.6);
+  fuelGfx.fillRect(10, 8, 12, 3);
+  // Yellow-gold center band
+  fuelGfx.fillStyle(0xffcc00, 0.7);
+  fuelGfx.fillRect(10, 14, 12, 4);
+  fuelGfx.generateTexture('fuelCanister', 32, 32);
+  fuelGfx.destroy();
+
   // --- Minimap ship dot ---
   const dotGfx = scene.make.graphics({ add: false });
   dotGfx.fillStyle(CONFIG.COLOR_SHIP);

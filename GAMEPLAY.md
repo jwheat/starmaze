@@ -89,12 +89,53 @@ Found at fixed locations in the maze (3 per level) and also dropped by destroyed
 - Restores your shield to full strength (2 HP).
 - Displays **"SHIELD RESTORED!"** when collected.
 
+### Fuel Canisters (Orange Rectangles)
+
+Found at dead-end corridors in the maze (5 per level) and also dropped by destroyed enemies.
+
+- Restores **25 fuel** (out of 100 max).
+- Displays **"+FUEL"** when collected.
+
 ### Life Gems (Green Ship Icon)
 
 Dropped by destroyed enemies (less common than shield gems).
 
 - Grants **+1 extra life**.
 - Displays **"EXTRA LIFE!"** when collected.
+
+---
+
+## Fuel System
+
+Your ship has a limited fuel supply that drains over time. Managing fuel is a core strategic challenge — you must plan routes through the maze rather than freely backtracking.
+
+### Drain Rates
+
+| State | Drain Rate | Time to Empty |
+|---|---|---|
+| Idle (no thrust) | 1.1/sec | ~90 seconds |
+| Thrusting | 2.2/sec | ~45 seconds |
+| 50% thrust (typical) | ~1.65/sec | ~60 seconds |
+
+### What Happens at Zero Fuel
+
+1. **Thrust disabled** — your ship drifts on inertia only. Rotation and firing still work.
+2. **5-second grace period** — a large red countdown appears on screen. Use this time to drift toward a fuel canister or kill an enemy that might drop one.
+3. **Ship destroyed** — if the timer reaches zero, you lose a life regardless of shield status (fuel death bypasses shields).
+
+### Refueling
+
+- Collect **fuel canisters** placed in the maze (5 per level, 25 fuel each).
+- Kill enemies — they have a chance to drop fuel canisters.
+- **Respawning** after death restores fuel to full.
+- Collecting fuel during the grace period **cancels the countdown**.
+
+### HUD Display
+
+The fuel bar appears below the star counter on the left side of the screen:
+- **Orange bar** at normal levels: `FUEL: ████████░░`
+- **Red flashing bar** when fuel is low (below 25%)
+- **Red "FUEL: EMPTY"** when fuel runs out
 
 ---
 
@@ -124,18 +165,20 @@ Your ship starts each life with a shield that absorbs damage before you lose a l
 | Destroy an enemy | **250** |
 | Collect an extra life gem | **200** |
 | Collect a shield gem | **50** |
+| Collect a fuel canister | **25** |
 
 - Your score carries over between levels when you win.
 - Your score resets to 0 on game over.
 
 ### Enemy Drops
 
-When you destroy an enemy, there is a **20% chance** it drops a gem:
+When you destroy an enemy, there is a **20% chance** it drops a pickup:
 
-- **70%** of drops are Shield Gems
-- **30%** of drops are Life Gems
+- **50%** of drops are Shield Gems
+- **25%** of drops are Fuel Canisters
+- **25%** of drops are Life Gems
 
-Overall per enemy killed: 14% chance of a shield gem, 6% chance of a life gem.
+Overall per enemy killed: 10% shield gem, 5% fuel canister, 5% life gem.
 
 ---
 
@@ -166,6 +209,7 @@ Overall per enemy killed: 14% chance of a shield gem, 6% chance of a life gem.
 ### What Resets Each Level
 
 - Shield restored to full
+- Fuel restored to full
 - New maze generated
 - Fresh enemies, stars, and gems placed
 
@@ -193,6 +237,7 @@ The HUD is always visible during gameplay:
 | Top-left (below score) | **STARS** | Collected / total (e.g. "3/10") |
 | Top-center | **LEVEL** | Current level number |
 | Top-right | **LIVES** | Triangle icons per life (turns red at 1 life) |
+| Top-left (below stars) | **FUEL** | Orange bar showing fuel level (flashes red when low) |
 | Top-right (below lives) | **SHIELD** | Bar showing shield HP |
 | Bottom-right | **Minimap** | 140x140px overview of the full maze |
 
@@ -208,6 +253,8 @@ The minimap shows the entire maze, your position, enemies, stars, and the exit p
 - **Check the minimap.** It shows the full maze layout and remaining stars so you can plan your route.
 - **Clear enemies near stars.** Don't rush into a dead-end to grab a star if an enemy is patrolling nearby.
 - **Manage your approach to the exit.** Once all stars are collected, the exit portal activates — plan your path there before grabbing the last star.
+- **Watch your fuel.** Plan efficient routes — backtracking wastes fuel. Prioritize fuel canisters in nearby dead-ends.
+- **Don't panic at zero fuel.** You have 5 seconds to drift to a canister or kill an enemy for a fuel drop. You can still rotate and shoot!
 - **Enemies get denser.** In later levels, conserve lives and shield gems for harder sections of the maze.
 
 ## Original Game Credits
