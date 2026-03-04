@@ -1,5 +1,7 @@
 # StarMaze — Gameplay Guide
 
+<img src="Star_Maze_cover.jpg" alt="Star Maze Cover" width="250" align="right" hspace="5" vspace="5"/>
+
 ## Overview
 
 StarMaze is a top-down arcade shooter set in procedurally generated mazes. Your goal is to pilot a ship through the maze, collect every star, and reach the exit portal — all while fighting off patrolling enemies. Each level increases the maze size and enemy count.

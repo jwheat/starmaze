@@ -1,5 +1,7 @@
 # StarMaze
 
+<img src="Star_Maze_cover.jpg" alt="Star Maze Cover" width="250" align="right" />
+
 A top-down arcade maze game built with Phaser 3. Navigate procedurally generated mazes, collect stars, fight enemies, and find the exit to advance through increasingly difficult levels.
 
 ## Tech Stack
